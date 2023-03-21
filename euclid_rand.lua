@@ -2,15 +2,24 @@
 -- Euclidean rhythm with chance
 --
 
+function list_table(mt)
+    for _,x in ipairs(mt) do
+        io.write('[ ')
+        for _,y in ipairs(x) do
+            io.write(y .. ' ')
+        end
+        io.write(']  ')
+    end
+    io.write('\n')
+end
 
-function euclidean (k, n, s)
+function euclidean(k, n)
     assert(k <= n, "events should count fewer than steps")
 
-    local function merge_tail_to (mt, dst)
+    local function merge_tail_to(mt, dst)
         for _,v in ipairs(table.remove(mt)) do
             table.insert(mt[dst], v)
         end
-
         return mt
     end
 
@@ -19,43 +28,21 @@ function euclidean (k, n, s)
         table.insert(nt, {i <= k and 1 or 0})
     end
 
-    for x,y in ipairs(nt) do
-        print(x .. ':\t' .. table.concat(y, ' '))
-    end
-
-    -- TODO end condition here is wrong
-    while #nt > k do
-        merged = 0
-        for i=1,math.min(k, #nt-k) do
+    list_table(nt)
+    local to_merge = math.min(#nt-k, k, math.floor(#nt/2), #nt-math.floor(#nt/2))
+    while to_merge >= 1 do
+        for i=1,to_merge do
             merge_tail_to(nt, i)
-            merged = merged +1
         end
-        for x,y in ipairs(nt) do
-            print(x .. ':\t' .. table.concat(y, ' '))
-        end
-    end
-    print('---' ..merged .. ' == ' .. #nt-merged)
-
-    for i=1,#nt-merged-merged do
-        merge_tail_to(nt, i)
-    end
-    for x,y in ipairs(nt) do
-        print(x .. ':\t' .. table.concat(y, ' '))
+        list_table(nt)
+        to_merge = math.min(math.floor(#nt/2), #nt-math.floor(#nt/2))
     end
 
-    while #nt > 1 do    -- flatten the table
-        merge_tail_to(nt, #nt-1)
-    end
-
-    if s then
-        return nt[1][s % n]
-    else
-        return nt[1]
-    end
+    return nt[1]
 end
 
-k = 7  -- events
-n = 16  -- steps
+k = 3  -- events
+n = 8  -- steps
 
 er = euclidean(k, n)
-print(table.concat(er, ' '))
+print('k:' .. k .. ', n:' .. n .. ' [ ' .. table.concat(er, ' ') .. ' ]')
